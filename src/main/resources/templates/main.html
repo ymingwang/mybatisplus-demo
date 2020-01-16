@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('首页')" />
+    <link th:href="@{/css/layer.css}" rel="stylesheet"/>
+</head>
+<body class="container">
+<div class="col-sm-12">
+    <h1 class="col-sm-6">首页</h1><h4 class="col-sm-6"><a th:href="@{logout}">退出</a></h4>
+</div>
+
+<div>
+    <h4>-用户信息</h4>
+    您好
+    <!--th:text="${user.username}"-->
+    <!--<span ><shiro: pricipal /></span>-->
+    <br/>
+    <hr>
+    <u>添加用户</u>
+    <div>
+        <form id="addUserForm">
+            <div class="col-sm-12">
+                username: <input type="text" class="form-control" placeholder="用户名" name="username" required/>
+            </div>
+            <div class="col-sm-12">
+                password: <input type="password" class="form-control" placeholder="密码" name="password" required>
+            </div>
+            <div class="col-sm-12">
+                <div id="addUserBtn" class="form-control">添加用户</div>
+            </div>
+            <div class="col-sm-3">
+                <input type="button" id="testShiroUtis" value="testShiroUtils" class="form-control">
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:src="@{/js/layer.min.js}"></script>
+<script th:inline="javascript"> let ctx = [[@{/}]];</script>
+
+<script>
+    $(function () {
+        $.ajax({
+            type: "get",
+            url: ctx + "getMsg",
+            success: function (data) {
+                console.log("111111111111111111111111111111" + data);
+            }
+        });
+    });
+    $("#addUserBtn").click(function () {
+        console.log('按钮点击事件');
+        add();
+    });
+    function add() {
+        console.log('进入add方法');
+        let username = $("input[name='username']").val();
+        let password = $("input[name='password']").val();
+        console.log('username = ' + username);
+        console.log('password = ' + password);
+        let userData = {
+            "username": username,
+            "password": password
+        };
+        // return;
+        $.ajax({
+            type: "POST",
+            url: ctx + "insert",
+            dataType: "json",
+            contentType: "application/json",// @RequestBody 修饰的参数对象
+            data: JSON.stringify(userData),
+            success: function (data) {
+                let result = data.content;
+                console.log("result = " + result);
+                if (result > 0) {
+                    // alert("添加成功");
+                    $.modal.msg("添加成功");
+                    $("input[name='username']").val("");
+                    $("input[name='password']").val("");
+                } else {
+                    console.log("添加失败");
+                    layer.msg("添加失败");
+                }
+            }
+        });
+    }
+    $("#testShiroUtis").click(function () {
+        console.log('testShiroUtis 按钮点击事件');
+        $.ajax({
+            type: "get",
+            url: ctx + "testShiroUtis",
+            success: function (data) {
+                console.log("testShiroUtis 请求成功");
+            }
+        });
+    });
+</script>
+</body>
+</html>

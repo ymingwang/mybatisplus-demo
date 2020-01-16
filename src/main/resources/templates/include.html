@@ -1,0 +1,18 @@
+<!-- 通用css -->
+<head th:fragment=header(title)>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title th:text="${title}"></title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/></link>
+    <link th:href="@{/css/ry-ui.css}" rel="stylesheet"/>
+</head>
+
+<!-- 通用JS -->
+<div th:fragment="footer">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+
+    <script th:src="@{/js/ry-ui.js}"></script>
+</div>

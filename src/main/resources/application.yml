@@ -1,0 +1,172 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # tomcat最大线程数，默认为200
+    max-threads: 800
+    # Tomcat启动初始化的线程数，默认值25
+    min-spare-threads: 30
+    # 设置请求 这是由于tomcat限制了header的长度,如果你请求的数据量超过了默认的长度就会抛出越界
+    max-http-header-size: 10000000
+
+spring:
+  thymeleaf:
+    #模板的模式，支持 HTML, XML TEXT JAVASCRIPT
+    mode: HTML
+    #编码 可不用配置
+    encoding: UTF-8
+    #开发配置为false,避免修改模板还要重启服务器
+    cache: false
+    #配置模板路径，默认是templates，可以不用配置
+#    prefix: classpath:/templates
+#  mvc:
+#    static-path-pattern: /static/**
+  devtools:
+    restart:
+      enabled: true
+#      additional-paths: src/ymw
+  # =============kafka======================
+  kafka:
+    # 指定kafka server的地址，集群配多个，中间，逗号隔开
+    bootstrap-servers: localhost:9092
+    # 配置生产者
+    producer:
+      # 写入失败时，重试次数。当leader节点失效，一个repli节点会替代成为leader节点，此时可能出现写入失败，
+      # 当retris为0时，produce不会重复。retirs重发，此时repli节点完全成为leader节点，不会产生消息丢失。
+      retries: 0
+      # 每次批量发送消息的数量,produce积累到一定数据，一次发送
+      batch-size: 16384
+      # produce积累数据一次发送，缓存大小达到buffer.memory就发送数据
+      buffer-memory: 33554432
+      #procedure要求leader在考虑完成请求之前收到的确认数，用于控制发送记录在服务端的持久化，其值可以为如下：
+      #acks = 0 如果设置为零，则生产者将不会等待来自服务器的任何确认，该记录将立即添加到套接字缓冲区并视为已发送。在这种情况下，无法保证服务器已收到记录，并且重试配置将不会生效（因为客户端通常不会知道任何故障），为每条记录返回的偏移量始终设置为-1。
+      #acks = 1 这意味着leader会将记录写入其本地日志，但无需等待所有副本服务器的完全确认即可做出回应，在这种情况下，如果leader在确认记录后立即失败，但在将数据复制到所有的副本服务器之前，则记录将会丢失。
+      #acks = all 这意味着leader将等待完整的同步副本集以确认记录，这保证了只要至少一个同步副本服务器仍然存活，记录就不会丢失，这是最强有力的保证，这相当于acks = -1的设置。
+      #可以设置的值为：all, -1, 0, 1
+      acks: 1
+      # 指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    # 配置消费者
+    consumer:
+      # 指定默认消费者group id --> 由于在kafka中，同一组中的consumer不会读取到同一个消息，依靠group.id设置组名
+      group-id: testGroup
+      # smallest和largest才有效，如果smallest重新0开始读取，如果是largest从logfile的offset读取。一般情况下我们都是设置smallest
+      auto-offset-reset: earliest
+      # enable.auto.commit:true --> 设置自动提交offset
+      enable-auto-commit: true
+      # 如果'enable.auto.commit'为true，则消费者偏移自动提交给Kafka的频率（以毫秒为单位），默认值为5000。
+      auto-commit-interval: 1000
+      # 指定消息key和消息体的编解码方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  application:
+    name: mybatis-plus-curd
+  datasource:
+    username: root
+    password: root
+#    mysql 6
+#    url: jdbc:mysql://localhost:3306/myTest?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&autoReconnect=true
+#    mysql 5.7
+    url: jdbc:mysql://localhost:3307/my_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+#    MySQL 5.1.8 连接包 驱动类
+#    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    # hikari 连接池  https://blog.csdn.net/X5fnncxzq4/article/details/80649679
+    hikari:
+      # 自动提交
+      auto-commit: true
+      connection-test-query: SELECT 1
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 默认:30秒
+      # 生产环境 connect-time 10 s
+      connection-timeout: 9000
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），默认:10分钟
+      idle-timeout: 600000
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认:30分钟 1800000ms，建议设置比数据库超时时长少60秒，
+      # 参考MySQL wait_timeout 7200s 参数（# 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认:30分钟 1800000ms，
+      # 建议设置比数据库超时时长少60秒，参考MySQL wait_timeout参数（show variables like '%timeout%';） -->  ） -->
+      max-lifetime: 1800000
+      # 连接池中允许的最大连接数。缺省值：10；推荐的公式：((core_count * 2) + effective_spindle_count)
+      maximum-pool-size: 15
+      # 最小连接数
+      minimum-idle: 10
+      # 连接池名字
+      pool-name: DemoHikariCP
+  banner:
+    charset: UTF-8
+    location: classpath:banner.txt
+    image:
+      location: banner.gif
+      width: 76
+      height:
+      margin: 2
+      invert: false
+# ----------redis配置
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password:
+    pool:
+      max-active: 200
+      max-wait: -1
+      max-idle: 10
+      min-idle: 0
+    timeout: 1000
+
+
+
+mybatis-plus:
+#  configuration:
+    # 延时加载的开关
+    #    lazy-loading-enabled: true
+    # 开启的话，延时加载一个属性时会加载该对象全部属性，否则按需加载属性
+  #    multiple-result-sets-enabled: true
+  #    use-generated-keys: true
+  #    default-statement-timeout: 60
+  #    default-fetch-size: 100
+  config-location: classpath:mybatis/mybatis-config.xml
+  # MyBaits 别名包扫描路径，通过该属性可以给包中的类注册别名
+  type-aliases-package: com.ymw.mybatisplus
+  mapper-locations: classpath*:mapper/*Mapper.xml
+  global-config:
+    db-config:
+      id-type: input
+      field-strategy: not_null
+  # 该配置请和 typeAliasesPackage 一起使用，如果配置了该属性，则仅仅会扫描路径下以该类作为父类的域对象 。
+#  type-aliases-super-type: java.lang.Object
+
+# Shiro
+shiro:
+  user:
+    # 登录地址
+    loginUrl: /login
+    # 权限认证失败地址
+    unauthorizedUrl: /unauth
+    # 首页地址
+    indexUrl: /main
+    # 验证码开关
+    captchaEnabled: false
+    # 验证码类型 math 数组计算 char 字符
+    captchaType: math
+  cookie:
+    # 设置Cookie的域名 默认空，即当前访问的域名
+    domain:
+    # 设置cookie的有效访问路径
+    path: /
+    # 设置HttpOnly属性
+    httpOnly: true
+    # 设置Cookie的过期时间，天为单位
+    maxAge: 30
+  session:
+    # Session超时时间（默认30分钟）
+    expireTime: 30
+    # 同步session到数据库的周期（默认1分钟）
+    dbSyncPeriod: 1
+    # 相隔多久检查一次session的有效性，默认就是10分钟
+    validationInterval: 10

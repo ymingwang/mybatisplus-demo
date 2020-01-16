@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ymw.mybatisplus.mapper.UserMapper">
+
+    <select id="selectListPage" resultType="com.ymw.mybatisplus.bean.User">
+        select * from user
+    </select>
+
+    <select id="countUser" resultType="java.lang.Integer">
+
+    </select>
+    <select id="getPassword" resultType="java.lang.String">
+        select password from user where username = #{username}
+    </select>
+
+    <select id="addMoreFile">
+        load data local infile"G:/qqdownload/person_20190930.txt" into table a(a,b,c,d,e,f)
+    </select>
+
+</mapper>

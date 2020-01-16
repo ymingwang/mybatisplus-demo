@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    </link>
+    <title>index</title>
+</head>
+<body class="container">
+<h2 align="center">登录页</h2>
+<div class="col-sm-12">
+    <div class="col-sm-12">
+        username: <input type="text" class="form-control" placeholder="用户名" name="username" value="admin"/>
+    </div>
+    <div class="col-sm-12">
+        password: <input type="password" class="form-control" placeholder="密码" name="password" value="222222a">
+    </div>
+    <div>
+        <div class="col-sm-10">
+            <input type="text" maxlength="4" class="form-control tryCode" placeholder="请输入验证码" name="tryCode">
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <button id="login" class="form-control" disabled="disabled">登录</button>
+    </div>
+    <div class="col-sm-6 col-lg-offset-2">
+        <h4></h4>
+    </div>
+</div>
+
+
+<script src="/js/jquery.min.js"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script>
+    $(function () {
+        console.log("111")
+    })
+</script>
+</body>
+</html>

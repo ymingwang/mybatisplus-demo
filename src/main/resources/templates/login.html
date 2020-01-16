@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('登录')"/>
+    <style>
+        .codeImg {
+            height: 34px;
+        }
+    </style>
+</head>
+<body class="container">
+<h2 align="center">登录页</h2>
+<!--<form id="loginForm" action="/submitLogin" method="post">-->
+<div class="col-sm-12">
+    <div class="col-sm-12">
+        username: <input type="text" class="form-control" placeholder="用户名" name="username" value="admin"/>
+    </div>
+    <div class="col-sm-12">
+        password: <input type="password" class="form-control" placeholder="密码" name="password" value="222222a">
+    </div>
+    <div>
+        <div class="col-sm-2">
+            <img class="codeImg" alt="验证码" onclick="this.src='/defaultKaptcha?d='+new Date()*1" src="/defaultKaptcha"/>
+        </div>
+        <div class="col-sm-10">
+            <input type="text" maxlength="4" class="form-control tryCode" placeholder="请输入验证码" name="tryCode">
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <button id="login" class="form-control">登录</button>
+    </div>
+    <span id="returnMsg" th:value="${msg}"></span>
+    <div class="col-sm-6 col-lg-offset-2">
+        <h4></h4>
+    </div>
+</div>
+<!--</form>-->
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript"> let ctx = [[@{/}]];</script>
+
+<script>
+    $(function () {
+        $("#returnMsg").html('<font color="red">' + '[[${msg}]]' + '</font>');
+
+
+        $("#login").click(function () {
+            console.log("登陆方法");
+            let username = $("input[name='username']").val();
+            let password = $("input[name='password']").val();
+            $.ajax({
+                type: "POST",
+                url: ctx + 'login',
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function (data) {
+                    if (data.code == 0) {
+                        console.log("登陆成功");
+                        location.href = ctx + "main";
+                    } else {
+                        console.log("登录失败");
+                    }
+                }
+            });
+        });
+
+        $(".tryCode").on('input', function () {
+            let val = $(this).val();
+            let len = val.length;
+            console.log("change");
+            if (len > 3) {
+                console.log("len > 3");
+                $.ajax({
+                    type: "POST",
+                    url: ctx + 'validateCode',
+                    data: {
+                        tryCode: val
+                    },
+                    success: function (data) {
+                        console.log("请求成功`````````````````````````````````````````````");
+                        console.log(data);
+                        if (data === 'true') {
+                            console.log("验证通过");
+                            $("#login").removeAttr("disabled");
+                            $('h4').text(' ');
+                        } else {
+                            console.log("验证失败");
+                            $('h4').text('错误的验证码');
+                            document.getElementById('login').disabled = true;
+                        }
+                    }
+                })
+            }
+        })
+    })
+</script>
+</body>
+</html>
